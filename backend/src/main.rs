@@ -1,11 +1,12 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder, web::Data};
+use actix_cors::Cors;
 use sqlx::postgres::PgPoolOptions;
 // use sqlx::PgPool;
 use std::env;
 use dotenv::dotenv;
 
 async fn search() -> impl Responder {
-    HttpResponse::Ok().body("Hello, this is the search endpoint!")
+    HttpResponse::Ok().json(vec!["Result 1", "Result 2", "Result 3"])
 }
 
 
@@ -21,7 +22,13 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to create pool");
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         App::new()
+            .wrap(cors)
             .app_data(Data::new(pool.clone()))
             .route("/search", web::get().to(search))
     })
