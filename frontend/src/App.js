@@ -18,6 +18,29 @@ function App() {
     }
   };
 
+  const handleAddSearch = async () => {
+    const newSearch = {
+      query: query,
+      results: ["result1", "result2", "result3"]
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSearch),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log('Search added successfully');
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
+  }
+
   return (
     <div>
       <h1>AI Powered Search</h1>
@@ -28,6 +51,7 @@ function App() {
         placeholder='Enter your search query'
       />
       <button onClick={handleSearch}>Search</button>
+      <button onClick={handleAddSearch}>Add Search</button>
       <ul>
         {results.map((result, index) => (
           <li key={index}>{result}</li>
