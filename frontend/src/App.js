@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './App.css';
 
 function App() {
   const [query, setQuery] = useState('');
@@ -12,7 +13,7 @@ function App() {
       }
 
       const data = await response.json();
-      setResults(data);
+      setResults(data.results);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }

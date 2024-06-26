@@ -5,38 +5,47 @@ use sqlx::PgPool;
 use std::env;
 use dotenv::dotenv;
 use serde::Deserialize;
-// use serde::Serialize;
-use serde_json::Value as JsonValue;
+use serde::Serialize;
+// use serde_json::Value as JsonValue;
+use std::process::Command;
 
 #[derive(Deserialize)]
 struct SearchQuery {
     query: String,
 }
 
-// #[derive(Serialize)]
-// struct SearchResult {
-//     results: Vec<String>
-// }
+#[derive(Serialize)]
+struct SearchResult {
+    results: Vec<String>
+}
 
-async fn search(pool: web::Data<PgPool>,
+async fn search(_pool: web::Data<PgPool>,
                 query: web::Query<SearchQuery>
 ) -> impl Responder {
     let query = query.into_inner().query;
-    let results = sqlx::query!(
-        "SELECT results FROM searches WHERE query = $1",
-        query
-    )
-    .fetch_all(pool.as_ref())
-    .await
-    .map(|rows| {
-        rows.into_iter()
-            .flat_map(|row| {
-                serde_json::from_value::<Vec<String>>(row.results.unwrap_or(JsonValue::Null)).unwrap_or_else(|_| vec![])
-            })
-            .collect()
-    })
-    .unwrap_or_else(|_| vec![]);
-    HttpResponse::Ok().json(results)
+
+    let output = Command::new("python3")
+        .arg("scripts/search_model.py")
+        .arg(&query)
+        .output()
+        .expect("Failed to execute command");
+    let results: Vec<String> = serde_json::from_slice(&output.stdout).unwrap_or_else(|_| vec![]);
+
+    // let results = sqlx::query!(
+    //     "SELECT results FROM searches WHERE query = $1",
+    //     query
+    // )
+    // .fetch_all(pool.as_ref())
+    // .await
+    // .map(|rows| {
+    //     rows.into_iter()
+    //         .flat_map(|row| {
+    //             serde_json::from_value::<Vec<String>>(row.results.unwrap_or(JsonValue::Null)).unwrap_or_else(|_| vec![])
+    //         })
+    //         .collect()
+    // })
+    // .unwrap_or_else(|_| vec![]);
+    HttpResponse::Ok().json(SearchResult { results })
 }
 
 #[derive(Deserialize)]
