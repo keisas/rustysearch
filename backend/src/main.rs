@@ -6,69 +6,113 @@ use std::env;
 use dotenv::dotenv;
 use serde::Deserialize;
 use serde::Serialize;
-// use serde_json::Value as JsonValue;
 use std::process::Command;
+use std::time::Instant;
 
 #[derive(Deserialize)]
 struct SearchQuery {
     query: String,
+    search_type: String,
+    use_ml: bool,
 }
+
+
+#[derive(Serialize, Deserialize)]
+struct SearchResultItem {
+    id: i32,
+    title: String,
+    description: String,
+    relevance_score: f32,
+}
+
 
 #[derive(Serialize)]
 struct SearchResult {
-    results: Vec<String>
+    results: Vec<SearchResultItem>,
+    elapsed_time: f64,
 }
 
-async fn search(_pool: web::Data<PgPool>,
+async fn search(pool: web::Data<PgPool>,
                 query: web::Query<SearchQuery>
 ) -> impl Responder {
-    let query = query.into_inner().query;
+    let query = query.into_inner();
+    let start = Instant::now();
+    dbg!(query.query.clone());
+    
+    let mut results = match query.search_type.as_str() {
+        "fulltext" => {
+            dbg!("fulltext search");
+            let results = sqlx::query!(
+                "SELECT id, title, description
+                 FROM articles
+                 WHERE tsv @@ plainto_tsquery('english', $1)",
+                query.query
+            )
+            .fetch_all(pool.as_ref())
+            .await
+            .expect("Failed to execute query");
+    
+            results.into_iter().map(|r| SearchResultItem {
+                id: r.id,
+                title: r.title,
+                description: r.description,
+                relevance_score: 0.0,
+            }).collect::<Vec<SearchResultItem>>()
+        },
+        "index" => {
+            dbg!("index search");
+            let results = sqlx::query!(
+                "SELECT id, title, description
+                 FROM articles
+                 WHERE title ILIKE $1",
+                format!("%{}%", query.query)
+            )
+            .fetch_all(pool.as_ref())
+            .await
+            .expect("Failed to execute query");
+    
+            results.into_iter().map(|r| SearchResultItem {
+                id: r.id,
+                title: r.title,
+                description: r.description,
+                relevance_score: 0.0,
+            }).collect::<Vec<SearchResultItem>>()
+        },
+        _ => {
+            dbg!("sequential search");
+            let results = sqlx::query!(
+                "SELECT id, title, description
+                 FROM articles
+                 WHERE description ILIKE $1",
+                format!("%{}%", query.query)
+            )
+            .fetch_all(pool.as_ref())
+            .await
+            .expect("Failed to execute query");
+    
+            results.into_iter().map(|r| SearchResultItem {
+                id: r.id,
+                title: r.title,
+                description: r.description,
+                relevance_score: 0.0,
+            }).collect::<Vec<SearchResultItem>>()
+        }
+    };
 
-    let output = Command::new("python3")
-        .arg("scripts/search_model.py")
-        .arg(&query)
-        .output()
-        .expect("Failed to execute command");
-    let results: Vec<String> = serde_json::from_slice(&output.stdout).unwrap_or_else(|_| vec![]);
+    if query.use_ml {
+        let output = Command::new("python3")
+            .arg("scripts/search_model.py")
+            .arg(serde_json::to_string(&results).unwrap())
+            .output()
+            .expect("Failed to execute command");
+        
+        results = serde_json::from_slice(&output.stdout)
+            .unwrap_or_else(|_| vec![]);
+    }
 
-    // let results = sqlx::query!(
-    //     "SELECT results FROM searches WHERE query = $1",
-    //     query
-    // )
-    // .fetch_all(pool.as_ref())
-    // .await
-    // .map(|rows| {
-    //     rows.into_iter()
-    //         .flat_map(|row| {
-    //             serde_json::from_value::<Vec<String>>(row.results.unwrap_or(JsonValue::Null)).unwrap_or_else(|_| vec![])
-    //         })
-    //         .collect()
-    // })
-    // .unwrap_or_else(|_| vec![]);
-    HttpResponse::Ok().json(SearchResult { results })
-}
+    let elapsed_time = start.elapsed().as_secs_f64();
 
-#[derive(Deserialize)]
-struct NewSearch {
-    query: String,
-    results: Vec<String>,
-}
-
-async fn add_search(pool: web::Data<PgPool>,
-                    new_search: web::Json<NewSearch>
-) -> impl Responder {
-    let new_search = new_search.into_inner();
-    let query = new_search.query;
-    let results = serde_json::to_value(new_search.results).unwrap();
-    let _ = sqlx::query!(
-        "INSERT INTO searches (query, results) VALUES ($1, $2)",
-        query,
-        results
-    )
-    .execute(pool.as_ref())
-    .await;
-
-    HttpResponse::Ok().body("Search added")
+    HttpResponse::Ok().json(SearchResult { results, elapsed_time })
 }
 
 #[actix_web::main]
@@ -92,7 +136,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(Data::new(pool.clone()))
             .route("/search", web::get().to(search))
-            .route("/search", web::post().to(add_search))
     })
     .bind("127.0.0.1:8080")?
     .run()
