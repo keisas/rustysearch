@@ -10,8 +10,9 @@ function App() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/search?query=${query}&search_type=${searchType}&use_ml=${useML}`);
+      const response = await fetch(`http://localhost:8080/search?query=${query}&_search_type=${searchType}&_use_ml=${useML}`);
       if (!response.ok) {
+        console.error('Network response was not ok');
         throw new Error('Network response was not ok');
       }
 
