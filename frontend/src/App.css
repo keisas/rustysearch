@@ -1,41 +1,67 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+/* ベーススタイルのリセット */
+* {
   margin: 0;
-  padding: 20px;
-}
-
-h1 {
-  color: #333;
-}
-
-input[type="text"] {
-  padding: 10px;
-  font-size: 16px;
-  margin-bottom: 10px;
-  width: calc(100% - 22px); /* paddingの分を考慮 */
+  padding: 0;
   box-sizing: border-box;
 }
 
-select, input[type="checkbox"] {
-  margin: 10px 0;
+body {
+  font-family: 'Georgia', serif;
+  background-color: #f5f5dc; /* ベージュ色の背景 */
+  color: #5b4636; /* ダークブラウンの文字色 */
+}
+
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #fff8dc; /* コーンシルク色の背景 */
+  border: 1px solid #deb887; /* バローニー色のボーダー */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #8b4513; /* サドルブラウン色の文字 */
+}
+
+input[type="text"] {
+  width: 100%;
   padding: 10px;
-  font-size: 16px;
+  margin-bottom: 10px;
+  border: 1px solid #a0522d; /* シエナ色のボーダー */
+  border-radius: 4px;
+  font-size: 1em;
+  background-color: #fffaf0; /* フローラルホワイト色の背景 */
+  color: #5b4636;
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #007BFF;
-  color: white;
-  border: none;
+  padding: 10px;
+  background-color: #8b4513; /* サドルブラウン色の背景 */
+  border: 1px solid #8b4513;
   border-radius: 4px;
-  transition: background-color 0.3s;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 5px;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #a0522d; /* シエナ色の背景 */
+}
+
+button.active {
+  background-color: #8b4513; /* サドルブラウン色の背景 */
+}
+
+p {
+  margin: 10px 0;
+  font-size: 1em;
 }
 
 ul {
@@ -44,21 +70,76 @@ ul {
 }
 
 li {
-  background-color: white;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding: 20px;
+  background: #fffaf0; /* フローラルホワイト色の背景 */
+  border: 1px solid #deb887; /* バローニー色のボーダー */
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 h2 {
-  margin: 0 0 10px;
-  font-size: 24px;
-  color: #007BFF;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #5b4636;
 }
 
-p {
-  margin: 0 0 10px;
-  font-size: 16px;
-  color: #555;
+img {
+  max-width: 150px;
+  height: auto;
+  margin-left: 20px;
+  border-radius: 4px;
+  border: 1px solid #deb887; /* バローニー色のボーダー */
+}
+
+.book-info {
+  flex-grow: 1;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 2px;
+  padding: 10px 15px;
+  border: 1px solid #a0522d; /* シエナ色のボーダー */
+  border-radius: 4px;
+  cursor: pointer;
+  background: #fffaf0; /* フローラルホワイト色の背景 */
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #f5deb3; /* ウィート色の背景 */
+}
+
+.pagination button.active {
+  background-color: #8b4513; /* サドルブラウン色の背景 */
+  color: white;
+}
+
+@media (min-width: 600px) {
+  .container {
+    padding: 40px;
+  }
+
+  input[type="text"], button {
+    font-size: 1.2em;
+  }
+
+  p {
+    font-size: 1.2em;
+  }
+
+  li {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.7em;
+  }
 }

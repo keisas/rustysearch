@@ -4,7 +4,7 @@ import json
 
 def calculate_relevance(articles):
     # 各記事に対してダミーのスコアを計算
-    scores = [len(article["description"]) * 0.1 for article in articles]
+    scores = [len(article["title"]) * 0.1 for article in articles]
     return scores
 
 
