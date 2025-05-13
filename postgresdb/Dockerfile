@@ -1,7 +1,6 @@
 # ベースイメージとしてPostgreSQLの公式イメージを使用
 FROM postgres:13
 
-
 # カスタム設定ファイルをコンテナ内のPostgreSQL設定ディレクトリにコピー
 COPY custom.conf /etc/postgresql/postgresql.conf
 

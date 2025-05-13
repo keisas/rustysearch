@@ -8,8 +8,9 @@ use std::env;
 mod models;
 mod schema;
 mod routes;
+mod services;
 
-use routes::config_search;
+use routes::search::config_search;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
