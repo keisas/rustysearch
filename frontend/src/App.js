@@ -7,15 +7,20 @@ function App() {
   const [elapsedTime, setElapsedTime] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 50;
+  const [mode, setMode] = useState("keyword"); // or "semantic"
+
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/search?query=${query}`);
+      const response = await fetch(`http://localhost:8080/search?query=${query}&mode=${mode}`);
       if (!response.ok) {
+        const errorText = await response.text();  // レスポンス本文を取得
         console.error('Network response was not ok');
+        console.error('Status:', response.status);         // 例: 500
+        console.error('Status Text:', response.statusText); // 例: "Internal Server Error"
+        console.error('Response Body:', errorText);         // エラーの具体的なメッセージ本文
         throw new Error('Network response was not ok');
       }
-
       const data = await response.json();
       setResults(data.results);
       setElapsedTime(data.elapsed_time);
@@ -47,7 +52,57 @@ function App() {
         onChange={(e) => setQuery(e.target.value)}
         placeholder='Enter your search query'
       />
-      <button onClick={handleSearch}>Search</button>
+      <div
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginTop: '20px',
+  }}
+>
+  {/* モード選択ボタン */}
+  <button
+    onClick={() => setMode("keyword")}
+    style={{
+      padding: '8px 12px',
+      backgroundColor: mode === "keyword" ? "#804000" : "#eee",
+      color: mode === "keyword" ? "white" : "#333",
+      border: mode === "keyword" ? "none" : "1px solid #ccc",
+      borderRadius: "6px",
+    }}
+  >
+    全文
+  </button>
+  <button
+    onClick={() => setMode("semantic")}
+    style={{
+      padding: '8px 12px',
+      backgroundColor: mode === "semantic" ? "#804000" : "#eee",
+      color: mode === "semantic" ? "white" : "#333",
+      border: mode === "semantic" ? "none" : "1px solid #ccc",
+      borderRadius: "6px",
+    }}
+  >
+    ベクトル
+  </button>
+
+  {/* Spacer to push 検索実行ボタン to the right */}
+  <div style={{ flexGrow: 1 }} />
+
+  {/* 検索ボタン */}
+  <button
+    onClick={handleSearch}
+    style={{
+      padding: '10px 20px',
+      backgroundColor: "#5c3317",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+    }}
+  >
+    検索実行
+  </button>
+</div>
       {elapsedTime !== null && (
         <p>Search took {elapsedTime.toFixed(10)} seconds</p>
       )}

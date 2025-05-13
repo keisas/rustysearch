@@ -25,3 +25,21 @@ pub async fn fetch_books_by_title(
 
     Ok(result?)
 }
+
+pub async fn fetch_books_by_isbns(
+    pool: web::Data<DbPool>,
+    isbns_list: Vec<String>,
+) -> Result<Vec<Book>, Error> {
+    let isbns_clone = isbns_list.to_owned();
+
+    let result = web::block(move || {
+        let mut conn = pool.get().map_err(|_| Error::NotFound)?;
+        books
+            .filter(isbn.eq_any(isbns_clone))
+            .load::<Book>(&mut conn)
+    })
+    .await
+    .map_err(|_| Error::NotFound)?;
+
+    Ok(result?)
+}

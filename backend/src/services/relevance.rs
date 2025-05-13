@@ -1,12 +1,11 @@
 use crate::models::Book;
 use std::process::Command;
+use crate::services::types::RelevanceScore;
 
-pub async fn compute_relevance_scores(books: &[Book]) -> Result<Vec<f32>, String> {
-    let input_json = serde_json::to_string(books).map_err(|e| e.to_string())?;
-
+pub async fn compute_relevance_scores(query: &str) -> Result<Vec<RelevanceScore>, String> {
     let output = Command::new("python3")
         .arg("scripts/calculate_relevance.py")
-        .arg(input_json)
+        .arg(query)
         .output()
         .map_err(|e| format!("Python exec error: {}", e))?;
 

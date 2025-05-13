@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use diesel::prelude::*;
 
-#[derive(Queryable, Serialize, Deserialize)]
+#[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Book {
     pub isbn: String,
     pub title: String,

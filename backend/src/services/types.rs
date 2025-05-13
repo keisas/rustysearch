@@ -1,5 +1,6 @@
 use crate::models::Book;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct SearchResultItem {
@@ -18,18 +19,48 @@ pub struct SearchResult {
     pub elapsed_time: f64,
 }
 
-pub fn merge_books_with_scores(books: Vec<Book>, scores: Vec<f32>) -> Vec<SearchResultItem> {
+#[derive(Deserialize)]
+pub struct RelevanceScore {
+    pub isbn: String,
+    pub relevance_score: f32,
+}
+
+pub fn merge_books_with_scores(
+    books: Vec<Book>,
+    scores: Vec<RelevanceScore>,
+) -> Vec<SearchResultItem> {
+    // isbn → score のマップを作成
+    let score_map: HashMap<String, f32> =
+        scores.into_iter().map(|s| (s.isbn, s.relevance_score)).collect();
+
     books
         .into_iter()
-        .zip(scores.into_iter())
-        .map(|(book, score)| SearchResultItem {
+        .map(|book| {
+            let score = score_map.get(&book.isbn).copied().unwrap_or(0.0);
+            SearchResultItem {
+                isbn: book.isbn,
+                title: book.title,
+                author: book.author,
+                publication_year: book.publication_year,
+                publisher: book.publisher,
+                image_url: book.image_url,
+                relevance_score: score,
+            }
+        })
+        .collect()
+}
+
+pub fn merge_books_with_dummy_score(books: Vec<Book>) -> Vec<SearchResultItem> {
+    books
+        .into_iter()
+        .map(|book| SearchResultItem {
             isbn: book.isbn,
             title: book.title,
             author: book.author,
             publication_year: book.publication_year,
             publisher: book.publisher,
             image_url: book.image_url,
-            relevance_score: score,
+            relevance_score: 0.0, // ← 固定スコア
         })
         .collect()
 }

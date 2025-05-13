@@ -1,22 +1,29 @@
-from sklearn.linear_model import LinearRegression
+# search_model.py
+from sentence_transformers import SentenceTransformer
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import json
 
 
-# ダミーモデルの読み込み（将来は SentenceTransformer などに）
-def load_model():
-    model = LinearRegression()
-    X_train = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
-    y_train = np.array([6, 8, 9, 11])
-    model.fit(X_train, y_train)
-    return model
+def load_book_vectors(path="scripts/book_vectors.json"):
+    with open(path, "r") as f:
+        return json.load(f)
 
 
-# 外部から呼ばれるスコア計算関数（Rust経由で）
-def score_books(books):
-    model = load_model()
+def search_similar_books(query, top_k=5):
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    query_vec = model.encode([query])
 
-    features = np.array(
-        [[len(book["title"]), len(book.get("description", ""))] for book in books]
-    )
-    scores = model.predict(features)
-    return scores.tolist()
+    book_data = load_book_vectors()
+    book_vecs = np.array([entry["vector"] for entry in book_data])
+    isbns = [entry["isbn"] for entry in book_data]
+
+    similarities = cosine_similarity(query_vec, book_vecs)[0]
+
+    results = [
+        {"isbn": isbn, "relevance_score": float(score)}
+        for isbn, score in zip(isbns, similarities)
+    ]
+    results.sort(key=lambda x: x["relevance_score"], reverse=True)
+
+    return results[:top_k]
