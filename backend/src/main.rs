@@ -28,8 +28,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let pool = web::Data::new(establish_connection_pool());
 
-    // 起動したことを知らせるログ
-    println!("Starting server at: http://localhost:8080");
+    println!("Starting server");
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -42,8 +41,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(pool.clone())
             .configure(config_search)
     })
-    // .bind("0.0.0.0:8080")?
-    .bind("backend:8080")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }

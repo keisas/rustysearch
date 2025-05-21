@@ -1,4 +1,3 @@
-use crate::models::Book;
 use std::process::Command;
 use crate::services::types::RelevanceScore;
 

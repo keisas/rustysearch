@@ -29,7 +29,7 @@ pub fn merge_books_with_scores(
     books: Vec<Book>,
     scores: Vec<RelevanceScore>,
 ) -> Vec<SearchResultItem> {
-    // isbn → score のマップを作成
+
     let score_map: HashMap<String, f32> =
         scores.into_iter().map(|s| (s.isbn, s.relevance_score)).collect();
 
@@ -60,7 +60,7 @@ pub fn merge_books_with_dummy_score(books: Vec<Book>) -> Vec<SearchResultItem> {
             publication_year: book.publication_year,
             publisher: book.publisher,
             image_url: book.image_url,
-            relevance_score: 0.0, // ← 固定スコア
+            relevance_score: 0.0, 
         })
         .collect()
 }

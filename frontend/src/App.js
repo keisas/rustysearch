@@ -7,24 +7,24 @@ function App() {
   const [elapsedTime, setElapsedTime] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 50;
-  const [mode, setMode] = useState("keyword"); // or "semantic"
+  const [mode, setMode] = useState("keyword");
 
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/search?query=${query}&mode=${mode}`);
+      const response = await fetch(`https://api.yonecoding.com/search?query=${query}&mode=${mode}`);
       if (!response.ok) {
-        const errorText = await response.text();  // レスポンス本文を取得
+        const errorText = await response.text();
         console.error('Network response was not ok');
-        console.error('Status:', response.status);         // 例: 500
-        console.error('Status Text:', response.statusText); // 例: "Internal Server Error"
-        console.error('Response Body:', errorText);         // エラーの具体的なメッセージ本文
+        console.error('Status:', response.status);
+        console.error('Status Text:', response.statusText);
+        console.error('Response Body:', errorText);
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
       setResults(data.results);
       setElapsedTime(data.elapsed_time);
-      setCurrentPage(1);  // Reset to first page on new search
+      setCurrentPage(1);
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }
@@ -32,15 +32,13 @@ function App() {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    window.scrollTo(0, 0);  // Scroll to top on page change
+    window.scrollTo(0, 0);
   };
 
-  // Calculate displayed results based on pagination
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
   const currentResults = results.slice(indexOfFirstResult, indexOfLastResult);
 
-  // Calculate total pages
   const totalPages = Math.ceil(results.length / resultsPerPage);
 
   return (
@@ -60,7 +58,7 @@ function App() {
     marginTop: '20px',
   }}
 >
-  {/* モード選択ボタン */}
+
   <button
     onClick={() => setMode("keyword")}
     style={{
@@ -86,10 +84,8 @@ function App() {
     ベクトル
   </button>
 
-  {/* Spacer to push 検索実行ボタン to the right */}
   <div style={{ flexGrow: 1 }} />
 
-  {/* 検索ボタン */}
   <button
     onClick={handleSearch}
     style={{

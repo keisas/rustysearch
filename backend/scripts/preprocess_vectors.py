@@ -2,7 +2,6 @@ from sentence_transformers import SentenceTransformer
 import json
 import time
 
-# 1. 書籍タイトルなどを準備（例として仮データ）
 books = [
     {"isbn": "0195153448", "title": "Classical Mythology"},
     {"isbn": "0002005018", "title": "Clara Callan"},
@@ -121,13 +120,11 @@ books = [
 
 
 start = time.time()
-# 2. モデル読み込み
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 print("Model loaded in {:.2f} seconds".format(time.time() - start))
 
 start = time.time()
-# 3. タイトルをベクトル化
 vectors = [
     {"isbn": book["isbn"], "vector": model.encode(book["title"]).tolist()}
     for book in books
