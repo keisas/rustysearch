@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(pool.clone())
             .configure(config_search)
     })
-    .bind("0.0.0.0:8080")?
+    .bind("backend:8080")?
     .run()
     .await
 }

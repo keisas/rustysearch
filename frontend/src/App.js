@@ -12,7 +12,7 @@ function App() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`https://api.yonecoding.com/search?query=${query}&mode=${mode}`);
+      const response = await fetch(`http://localhost:8080/search?query=${query}&mode=${mode}`);
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Network response was not ok');
