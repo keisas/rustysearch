@@ -3,9 +3,8 @@
 **RustySearch** は、Rust + Actix + Diesel + FAISS によって構築された検索APIです。  
 キーワード検索（全文一致）とセマンティック検索（意味ベース）の切り替えが可能な、軽量かつ拡張性のある検索バックエンドです。
 
-🟢 実行ページ：~~[https://rustysearch.yonecoding.com](https://rustysearch.yonecoding.com)~~
+🟢 実行ページ：[https://rustysearch.yonecoding.com](https://rustysearch.yonecoding.com)
 
-🚧 **現在、一時的に公開を停止しています（ローカル環境での動作確認のみ可能）**
 
 ## 🎥 RustySearch デモ（ローカル動作）
 
